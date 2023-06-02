@@ -3,7 +3,7 @@ const tokens = document.getElementById('game').querySelectorAll('.token')
 const game = []
 let turn = 'yellow'
 
-for (let x = 0; x < 6; x++) {
+for (let x = 0; x < 7; x++) {
     for (let y = 0; y < 6; y++) {
         game.push({
             element: cells[x].children[y + 1], x, y, piece: null
@@ -45,19 +45,49 @@ for (const cell of cells) {
         }
         tokenDiv.classList.add(turn)
 
-        console.log(game);
+        win(column[i], game)
 
     })
 }
 
-function win(move) {
+function win(move, states, count = 1, dir) {
 
-    for (let x = move.x - 1; x <= move.x + 1; x++) {
+    if (!dir) {
         for (let y = move.y - 1; y <= move.y + 1; y++) {
-            console.log(true);
+            for (let x = move.x - 1; x <= move.x + 1; x++) {
+                const state = states.find(el => el.x === x && el.y === y)
+
+                if (state === move || !state) continue
+
+                const dir = { x: move.x - state.x, y: move.y - state.y }
+                const adjacent = states.find(el => el.x === move.x - dir.x && el.y === move.y - dir.y)
+
+                // console.log(dir, state.element, adjacent);
+
+                if (adjacent.piece === move.piece) {
+                    win(adjacent, game, count + 1, dir)
+                }
+            }
+        }
+    }
+
+    else {
+
+        if (count === 4) {
+            setTimeout(() => {
+                alert('yes')
+                window.location.reload()
+            }, 0.1 * 1000);
+            return
+        }
+
+        const adjacent = states.find(el => el.x === move.x - dir.x && el.y === move.y - dir.y)
+        if (adjacent && adjacent.piece === move.piece) {
+            win(adjacent, game, count + 1, dir)
+        }
+        else if (count === 3) {
+            win(move, game)
         }
     }
 
 }
-
-win({ x: 3, y: 3 })
